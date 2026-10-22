@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>農業副產物循環利用 —— 黃豆副產業的「一濕一乾」雙重困境與解方</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Icons & Third-party Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        .dark .glass-panel {
+            background: rgba(17, 24, 39, 0.88);
+            border: 1px solid rgba(55, 65, 81, 0.7);
+        }
+
+        .gradient-text-dry {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-bg-hero {
+            background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+        .dark .gradient-bg-hero {
+            background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.15) 0%, rgba(17, 24, 39, 0) 70%);
+        }
+
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body x-data="appState()" class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 min-h-screen flex flex-col antialiased">
+
+    <header class="sticky top-0 z-50 w-full glass-panel border-b border-slate-200 dark:border-slate-800 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" @click="activePage = 'home'">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-leaf text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-base sm:text-lg leading-none tracking-tight block text-slate-900 dark:text-white" x-text="lang === 'zh' ? '黃豆副產物循環利用' : 'Soybean By-product Economy'">黃豆副產物循環利用</span>
+                    <span class="text-xs text-brand-600 dark:text-brand-400 font-medium" x-text="lang === 'zh' ? '「一濕一乾」雙重困境與解方' : 'One Wet, One Dry: Dual Challenges & Solutions'">「一濕一乾」雙重困境與解方</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium">
+                <button @click="activePage = 'home'" :class="activePage === 'home' ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800'" class="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-house text-xs"></i>
+                    <span x-text="lang === 'zh' ? '首頁總覽' : 'Overview'">首頁總覽</span>
+                </button>
+
+                <button @click="activePage = 'comparison'" :class="activePage === 'comparison' ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800'" class="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-scale-balanced text-xs"></i>
+                    <span x-text="lang === 'zh' ? '乾濕特性對比' : 'Dry vs Wet'">乾濕特性對比</span>
+                </button>
+
+                <button @click="activePage = 'calculators'" :class="activePage === 'calculators' ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800'" class="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator text-xs"></i>
+                    <span x-text="lang === 'zh' ? '痛點與試算模擬器' : 'Simulators'">痛點與試算模擬器</span>
+                </button>
+
+                <button @click="activePage = 'gallery'" :class="activePage === 'gallery' ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800'" class="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-images text-xs"></i>
+                    <span x-text="lang === 'zh' ? '實驗與現場照片藝廊' : 'Gallery'">實驗與現場照片藝廊</span>
+                </button>
+
+                <button @click="activePage = 'solutions'" :class="activePage === 'solutions' ? 'bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800'" class="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb text-xs"></i>
+                    <span x-text="lang === 'zh' ? '永續解方與策略' : 'Solutions'">永續解方與策略</span>
+                </button>
+            </nav>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button @click="exportCurrentContent()" class="px-3 py-1.5 rounded-lg border border-brand-500 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/50 text-xs font-semibold flex items-center gap-1.5 transition" title="儲存與匯出目前內容">
+                    <i class="fa-solid fa-download"></i>
+                    <span x-text="lang === 'zh' ? '儲存內容' : 'Export'">儲存內容</span>
+                </button>
+
+                <button @click="toggleLang()" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-globe text-slate-500"></i>
+                    <span x-text="lang === 'zh' ? 'EN' : '繁中'">EN</span>
+                </button>
+
+                <button @click="toggleTheme()" class="p-2 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Home Section -->
+        <section x-show="activePage === 'home'" x-cloak x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-98">
+            <div class="relative pt-16 pb-24 md:pt-28 md:pb-36 gradient-bg-hero overflow-hidden transition-all duration-500">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-semibold mb-6 transition bg-brand-50 dark:bg-brand-900/40 border-brand-200 dark:border-brand-800 text-brand-700 dark:text-brand-300">
+                        <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+                        <span x-text="lang === 'zh' ? '農業副產物高值化與永續循環計畫' : 'Soybean Agro-Industrial Upcycling Project'">農業副產物高值化與永續循環計畫</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto mb-6 transition-colors text-slate-900 dark:text-white">
+                        <span x-text="lang === 'zh' ? '農業副產物的循環利用 ——' : 'Agro-Industrial Circular Economy —'">農業副產物的循環利用 ——</span><br>
+                        <span x-text="lang === 'zh' ? '黃豆副產業的' : 'Soybean By-industry'">黃豆副產業的</span>
+                        <span class="gradient-text-dry" x-text="lang === 'zh' ? '「一濕一乾」' : '“One Wet, One Dry”'">「一濕一乾」</span> 
+                        <span x-text="lang === 'zh' ? '雙重困境與解方' : 'Dual Challenges & Solutions'">雙重困境與解方</span>
+                    </h1>
+
+                    <p class="max-w-2xl mx-auto text-base mb-8 leading-relaxed transition-colors text-slate-600 dark:text-slate-300"
+                       x-text="lang === 'zh' ? '大豆加工產生的黃豆殼與豆渣，分別具備高纖維與蛋白質價值，卻因為物理特性的極端差異，遭遇瓶頸。' : 'Soybean hulls and okara generated during processing contain high fiber and protein, but suffer from extreme physical differences creating transport and spoilage bottlenecks.'">
+                        大豆加工產生的黃豆殼與豆渣，分別具備高纖維與蛋白質價值，卻因為物理特性的極端差異，遭遇瓶頸。
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center gap-4 mb-10">
+                        <button @click="activePage = 'comparison'" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-500/20 transition flex items-center gap-2">
+                            <span x-text="lang === 'zh' ? '探索乾濕對比' : 'Explore Dry vs Wet'">探索乾濕對比</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button @click="activePage = 'gallery'" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-sm shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-images text-brand-500"></i>
+                            <span x-text="lang === 'zh' ? '前往照片藝廊' : 'Open Photo Gallery'">前往照片藝廊</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section x-show="activePage === 'comparison'" x-cloak x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-98" class="py-12 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-10">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3" x-text="lang === 'zh' ? '黃豆副產物物理與化學特性深度對比' : 'In-depth Dry vs. Wet Material Comparison'">黃豆副產物物理與化學特性深度對比</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm" x-text="lang === 'zh' ? '結合實驗室精密樣品紀錄，剖析乾式與濕式副產物的核心特性。' : 'Analysis based on laboratory measurements.'">結合實驗室精密樣品紀錄，剖析乾式與濕式副產物的核心特性。</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="rounded-2xl p-6 sm:p-8 border-2 border-amber-200 dark:border-amber-900/50 bg-amber-50/20 dark:bg-amber-950/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-6">
+                                <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center text-2xl font-bold shadow-md">
+                                    <i class="fa-solid fa-wheat-awn"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white" x-text="lang === 'zh' ? '乾式：黃豆殼' : 'Dry: Soybean Hulls'">乾式：黃豆殼</h3>
+                                    <p class="text-xs text-amber-700 dark:text-amber-400 font-semibold" x-text="lang === 'zh' ? '痛點：體積大、密度低，物流卡在運費' : 'Key Pain Point: High Volume, Low Density, Freight Cost Limit'">痛點：體積大、密度低，物流卡在運費</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 text-sm">
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '含水率' : 'Moisture Content'">含水率</span>
+                                    <span class="font-bold text-amber-600">8.5% - 10.0%</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '堆積密度' : 'Bulk Density'">堆積密度</span>
+                                    <span class="font-bold text-amber-600">180 - 220 kg/m³</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '主要成分' : 'Main Nutrition'">主要成分</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">NDF 中性洗滌纖維 ~65%</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '常溫可保存時間' : 'Shelf Stability'">常溫可保存時間</span>
+                                    <span class="font-bold text-emerald-600">30+ 天</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl p-6 sm:p-8 border-2 border-sky-200 dark:border-sky-900/50 bg-sky-50/20 dark:bg-sky-950/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-6">
+                                <div class="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center text-2xl font-bold shadow-md">
+                                    <i class="fa-solid fa-droplet"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white" x-text="lang === 'zh' ? '濕態：豆渣' : 'Wet: Soybean Residue (Okara)'">濕態：豆渣</h3>
+                                    <p class="text-xs text-sky-700 dark:text-sky-400 font-semibold" x-text="lang === 'zh' ? '痛點：含水量高、極易快速酸敗，保存卡在時間' : 'Key Pain Point: High Moisture, Spoilage within Hours'">痛點：含水量高、極易快速酸敗，保存卡在時間</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 text-sm">
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-sky-200/60 dark:border-sky-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '含水率' : 'Moisture Content'">含水率</span>
+                                    <span class="font-bold text-sky-600">78.0% - 82.5%</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-sky-200/60 dark:border-sky-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '堆積密度' : 'Bulk Density'">堆積密度</span>
+                                    <span class="font-bold text-sky-600">850 - 950 kg/m³</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-sky-200/60 dark:border-sky-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '粗蛋白質' : 'Crude Protein'">粗蛋白質</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">25.0% - 28.0%</span>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-sky-200/60 dark:border-sky-900/40 flex justify-between items-center">
+                                    <span class="text-slate-500" x-text="lang === 'zh' ? '常溫黃金保存時間' : 'Golden Shelf-life'">常溫黃金保存時間</span>
+                                    <span class="font-bold text-rose-600">僅 6 - 12 小時</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section x-show="activePage === 'calculators'" x-cloak x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-98" class="py-12 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-10">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2" x-text="lang === 'zh' ? '痛點模擬與試算工具' : 'Pain Point Simulators'">痛點模擬與試算工具</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm" x-text="lang === 'zh' ? '動態試算黃豆殼物流運費差異與豆渣常溫酸敗時效。' : 'Interactive calculators.'">動態試算黃豆殼物流運費差異與豆渣常溫酸敗時效。</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-truck-fast text-brand-500"></i>
+                            <span x-text="lang === 'zh' ? '黃豆殼物流運費與造粒體積減量試算' : 'Hull Freight Simulator'">黃豆殼物流運費與造粒體積減量試算</span>
+                        </h3>
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" x-text="lang === 'zh' ? '處理黃豆殼總公噸數' : 'Total Hull Weight (Tons)'">處理黃豆殼總公噸數</label>
+                                <input type="number" x-model.number="hullWeight" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold">
+                            </div>
+                            <div class="p-4 rounded-xl bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 space-y-2">
+                                <div class="flex justify-between text-xs">
+                                    <span x-text="lang === 'zh' ? '鬆散未造粒所需卡車趟數：' : 'Loose Trucks Required:'">鬆散未造粒所需卡車趟數：</span>
+                                    <span class="font-bold text-rose-600" x-text="Math.ceil(hullWeight / 8) + ' 趟'"></span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span x-text="lang === 'zh' ? '源頭造粒後所需卡車趟數：' : 'Pelletized Trucks Required:'">源頭造粒後所需卡車趟數：</span>
+                                    <span class="font-bold text-emerald-600" x-text="Math.ceil(hullWeight / 22) + ' 趟'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-temperature-arrow-up text-sky-500"></i>
+                            <span x-text="lang === 'zh' ? '豆渣常溫存放與酸敗時效預估' : 'Okara Spoilage Simulator'">豆渣常溫存放與酸敗時效預估</span>
+                        </h3>
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1" x-text="lang === 'zh' ? '存放環境溫度' : 'Ambient Temp (°C)'">存放環境溫度</label>
+                                <input type="range" min="15" max="38" x-model.number="okaraTemp" class="w-full accent-sky-500">
+                                <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                    <span>15°C</span>
+                                    <span class="font-bold text-sky-600" x-text="okaraTemp + ' °C'"></span>
+                                    <span>38°C</span>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 space-y-1">
+                                <h4 class="font-bold text-sky-800 dark:text-sky-300 text-xs" x-text="okaraTemp > 30 ? '極高溫危險期' : '常溫安全臨界點'"></h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-400" x-text="okaraTemp > 30 ? '在 32°C 以上高溫下，豆渣於 4 小時內即會開始大量繁殖雜菌並產生酸臭發酵味。' : '在目前溫度下，豆渣黃金賞味期約為 8 至 12 小時，需儘速冷藏或烘乾。'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section x-show="activePage === 'gallery'" x-cloak x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-98" class="py-12 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-8">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2" x-text="lang === 'zh' ? '實驗與現場照片藝廊' : 'Lab & Field Photo Gallery'">實驗與現場照片藝廊</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm" x-text="lang === 'zh' ? '目前內建 12 張示意記錄卡；可替換為實驗室與現場真實照片。' : '12 built-in sample cards; replace them with real lab and field photos.'">目前內建 12 張示意記錄卡；可替換為實驗室與現場真實照片。</p>
+                                  </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-3 mb-8 text-xs font-semibold">
+                    <button @click="galleryFilter = 'hull'" :class="galleryFilter === 'hull' ? 'bg-amber-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'" class="px-5 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-wheat-awn"></i>
+                        <span x-text="lang === 'zh' ? '黃豆殼系列' : 'Soybean Hulls'">黃豆殼系列</span>
+                    </button>
+                    <button @click="galleryFilter = 'okara'" :class="galleryFilter === 'okara' ? 'bg-sky-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'" class="px-5 py-2.5 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-droplet"></i>
+                        <span x-text="lang === 'zh' ? '豆渣系列' : 'Soybean Okara'">豆渣系列</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <template x-for="photo in filteredPhotos()" :key="photo.id">
+                        <div class="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition cursor-pointer group flex flex-col justify-between">
+                            <div class="relative aspect-4/3 bg-slate-950 overflow-hidden flex items-center justify-center" @click="openModal(photo.code + ' - ' + photo.title, photo.desc, photo.src)">
+                                <img :src="photo.src" :alt="photo.title" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <div class="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                    <span class="px-2.5 py-1 rounded bg-slate-900/80 text-white text-[10px] font-semibold flex items-center gap-1">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i> <span x-text="photo.code"></span>
+                                    </span>
+                                </div>
+                                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold text-white shadow-sm"
+                                      :class="{
+                                          'bg-amber-500': photo.cat === 'hull',
+                                          'bg-sky-600': photo.cat === 'okara'
+                                      }"
+                                      x-text="photo.code">
+                                </span>
+                                <!-- Delete Button -->
+                                <button type="button" @click.stop="deletePhoto(photo.id)" class="absolute top-2 right-2 z-10 rounded-md bg-slate-900/80 text-white p-2 opacity-0 group-hover:opacity-100 transition" title="刪除此照片" aria-label="刪除此照片">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+
+                            <div class="p-3 bg-white dark:bg-slate-800">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[11px] font-extrabold text-brand-600 dark:text-brand-400" x-text="photo.code"></span>
+                                    <span class="text-[10px] text-slate-400" x-text="photo.cat === 'hull' ? '乾式' : '濕態'"></span>
+                                </div>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate" x-text="photo.title"></h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5" x-text="photo.desc"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <section x-show="activePage === 'solutions'" x-cloak x-transition:enter="transition ease-out duration-300 transform opacity-0 scale-98" class="py-12 bg-white dark:bg-slate-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4" x-text="lang === 'zh' ? '黃豆副產物永續解方與策略總結' : 'Sustainable Solutions & Summary'">黃豆副產物永續解方與策略總結</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8" x-text="lang === 'zh' ? '針對黃豆殼體積膨鬆的物流難題，建議採行源頭造粒；針對濕豆渣極易酸敗的時間壓力，建議導入低能耗烘乾或微酸發酵保鮮技術，實現農業副產物的淨零碳排與資源高值化循環。' : 'Pelletization for hulls and low-energy drying/fermentation for okara.'">
+                    針對黃豆殼體積膨鬆的物流難題，建議採行源頭造粒；針對濕豆渣極易酸敗的時間壓力，建議導入低能耗烘乾或微酸發酵保鮮技術，實現農業副產物的淨零碳排與資源高值化循環。
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Lightbox -->
+    <div x-show="modalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" @click="modalOpen = false">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700" @click.stop>
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white" x-text="modalTitle"></h3>
+                <button @click="modalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-slate-950 flex justify-center items-center max-h-[60vh] overflow-hidden">
+                <img :src="modalSrc" class="max-h-[55vh] w-auto object-contain rounded-lg">
+            </div>
+            <div class="p-5 bg-white dark:bg-slate-800">
+                <p class="text-sm text-slate-600 dark:text-slate-300" x-text="modalDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createSvgDataUrl(code, title, bgColor, textColor, subtitle) {
+            const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+                <defs>
+                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="${bgColor}" />
+                        <stop offset="100%" stop-color="#0f172a" />
+                    </linearGradient>
+                </defs>
+                <rect width="600" height="450" fill="url(#bg)" />
+                <circle cx="300" cy="200" r="120" fill="${bgColor}" opacity="0.25" filter="blur(30px)" />
+                <rect x="40" y="40" width="520" height="370" rx="16" fill="rgba(15, 23, 42, 0.65)" stroke="${textColor}" stroke-width="2" stroke-opacity="0.4" />
+                <text x="70" y="100" fill="${textColor}" font-family="sans-serif" font-size="32" font-weight="bold">${code}</text>
+                <text x="70" y="150" fill="#ffffff" font-family="sans-serif" font-size="24" font-weight="bold">${title}</text>
+                <text x="70" y="200" fill="#94a3b8" font-family="sans-serif" font-size="16">${subtitle}</text>
+                <path d="M70 320 L530 320" stroke="rgba(255,255,255,0.15)" stroke-dasharray="6 6" />
+                <text x="70" y="370" fill="#38bdf8" font-family="sans-serif" font-size="14" font-weight="bold">農業副產物循環利用系統 • 實驗記錄檔案</text>
+            </svg>`;
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+        }
+
+        function appState() {
+            return {
+                activePage: 'home',
+                lang: 'zh',
+                galleryFilter: 'hull',
+
+                hullWeight: 50,
+                okaraTemp: 28,
+
+                modalOpen: false,
+                modalTitle: '',
+                modalDesc: '',
+                modalSrc: '',
+
+                photos: [],
+
+                init() {
+                    const savedPhotos = localStorage.getItem('soybean_photos_v5');
+
+                    if (savedPhotos) {
+                        try {
+                            this.photos = JSON.parse(savedPhotos);
+                        } catch (e) {
+                            this.initDefaultPhotos();
+                        }
+                    } else {
+                        this.initDefaultPhotos();
+                    }
+                },
+
+                saveToStorage() {
+                    try {
+                        localStorage.setItem('soybean_photos_v5', JSON.stringify(this.photos));
+                    } catch (e) {
+                        console.error('Storage quota exceeded or error', e);
+                    }
+                },
+
+                toggleLang() {
+                    this.lang = this.lang === 'zh' ? 'en' : 'zh';
+                },
+
+                toggleTheme() {
+                    document.documentElement.classList.toggle('dark');
+                },
+
+                openModal(title, desc, src) {
+                    this.modalTitle = title;
+                    this.modalDesc = desc;
+                    this.modalSrc = src;
+                    this.modalOpen = true;
+                },
+
+                filteredPhotos() {
+                    return this.photos.filter(p => p.cat === this.galleryFilter);
+                },
+
+                handleLocalFiles(event) {
+                    const files = event.target.files;
+                    if (!files || files.length === 0) return;
+
+                    Array.from(files).forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const imgUrl = e.target.result;
+                            const nameLower = file.name.toLowerCase();
+                            const cat = (nameLower.includes('okara') || nameLower.includes('豆渣')) ? 'okara' : 'hull';
+                            const codePrefix = cat === 'hull' ? 'H' : 'O';
+                            const newCode = codePrefix + String(this.photos.filter(p => p.cat === cat).length + 1).padStart(2, '0');
+
+                            this.photos.unshift({
+                                id: 'upload_' + Date.now() + Math.random(),
+                                code: newCode,
+                                src: imgUrl,
+                                title: file.name,
+                                desc: '使用者上傳之即時同步相片與實驗紀錄',
+                                cat: cat
+                            });
+
+                            this.saveToStorage();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                },
+
+                deletePhoto(id) {
+                    this.photos = this.photos.filter(p => p.id !== id);
+                    this.saveToStorage();
+                },
+
+                exportCurrentContent() {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.photos, null, 2));
+                    const downloadAnchor = document.createElement('a');
+                    downloadAnchor.setAttribute("href", dataStr);
+                    downloadAnchor.setAttribute("download", "soybean_dashboard_offline_export.json");
+                    document.body.appendChild(downloadAnchor);
+                    downloadAnchor.click();
+                    downloadAnchor.remove();
+                },
+
+                initDefaultPhotos() {
+                    this.photos = [
+                        // 黃豆殼系列 (H01 - H06)
+                        { id: 'h1', code: 'H01', src: createSvgDataUrl('H01', '黃豆原料樣品與麻布袋包裝', '#b45309', '#fbbf24', '實驗室保存之優質黃豆與運送麻布袋實景紀錄'), title: '黃豆原料樣品與麻布袋包裝', desc: '實驗室保存之優質黃豆與運送麻布袋實景紀錄', cat: 'hull' },
+                        { id: 'h2', code: 'H02', src: createSvgDataUrl('H02', '黃豆殼樣品秤重紀錄', '#d97706', '#fcd34d', '實驗室天平精確量測輕量化結構'), title: '黃豆殼樣品秤重紀錄', desc: '實驗室天平精確量測輕量化結構', cat: 'hull' },
+                        { id: 'h3', code: 'H03', src: createSvgDataUrl('H03', '黃豆殼樣品手持展示', '#78350f', '#f59e0b', '展現其蓬鬆、輕盈與高孔隙之物理特性'), title: '黃豆殼樣品手持展示', desc: '展現其蓬鬆、輕盈與高孔隙之物理特性', cat: 'hull' },
+                        { id: 'h4', code: 'H04', src: createSvgDataUrl('H04', '黃豆殼特寫與袋裝堆疊', '#92400e', '#fbbf24', '觀察其乾燥帶狀與纖維分佈狀態'), title: '黃豆殼特寫與袋裝堆疊', desc: '觀察其乾燥帶狀與纖維分佈狀態', cat: 'hull' },
+                        { id: 'h5', code: 'H05', src: createSvgDataUrl('H05', '黃豆殼 剖面結構', '#b45309', '#f6ad55', '剖析其內部纖維密度與結構細節'), title: '黃豆殼 剖面結構', desc: '剖析其內部纖維密度與結構細節', cat: 'hull' },
+                        { id: 'h6', code: 'H06', src: createSvgDataUrl('H06', '黃豆殼 特寫鏡頭', '#d97706', '#fef08a', '近距離微距觀察表面紋理與乾燥程度'), title: '黃豆殼 特寫鏡頭', desc: '近距離微距觀察表面紋理與乾燥程度', cat: 'hull' },
+
+                        // 豆渣系列 (O01 - O06)
+                        { id: 'o1', code: 'O01', src: createSvgDataUrl('O01', '濕豆渣樣品與容器包裝', '#0284c7', '#38bdf8', '剛壓榨出爐之濕態高含水樣貌'), title: '濕豆渣樣品與容器包裝', desc: '剛壓榨出爐之濕態高含水樣貌', cat: 'okara' },
+                        { id: 'o2', code: 'O02', src: createSvgDataUrl('O02', '豆渣樣品秤重紀錄', '#0369a1', '#7dd3fc', '實驗室微量天平精確量測濕重樣品'), title: '豆渣樣品秤重紀錄', desc: '實驗室微量天平精確量測濕重樣品', cat: 'okara' },
+                        { id: 'o3', code: 'O03', src: createSvgDataUrl('O03', '豆渣樣品手持展示', '#075985', '#38bdf8', '展現其高水分、泥狀、易團聚之物理特性'), title: '豆渣樣品手持展示', desc: '展現其高水分、泥狀、易團聚之物理特性', cat: 'okara' },
+                        { id: 'o4', code: 'O04', src: createSvgDataUrl('O04', '豆渣特寫與袋裝狀態', '#0c4a6e', '#bae6fd', '記錄濕態儲存時的堆疊密實度'), title: '豆渣特寫與袋裝狀態', desc: '記錄濕態儲存時的堆疊密實度', cat: 'okara' },
+                        { id: 'o5', code: 'O05', src: createSvgDataUrl('O05', '豆渣 剖面結構', '#0284c7', '#7dd3fc', '切開觀察內部水分滲透與細密質地'), title: '豆渣 剖面結構', desc: '切開觀察內部水分滲透與細密質地', cat: 'okara' },
+                        { id: 'o6', code: 'O06', src: createSvgDataUrl('O06', '豆渣 特寫鏡頭', '#0369a1', '#e0f2fe', '近距離捕捉其細顆粒與濕潤反光細節'), title: '豆渣 特寫鏡頭', desc: '近距離捕捉其細顆粒與濕潤反光細節', cat: 'okara' }
+                    ];
+
+                    this.saveToStorage();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
